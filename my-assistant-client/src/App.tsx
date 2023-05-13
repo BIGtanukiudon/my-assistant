@@ -11,11 +11,16 @@ import {
 import { requestToOpenAi } from "./openAi";
 import { generateVoice } from "./voicevox";
 import { Howl } from "howler";
+import { ReactComponent as Mic } from "./assets/mic.svg";
+import { ReactComponent as MicOff } from "./assets/mic_off.svg";
+import { useScroll } from "./hooks/scroll";
 
 type MessageProps = {
   role: string;
   content: string;
 };
+
+const CHAT_AREA_ID = "chat-area";
 
 function App() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -25,10 +30,14 @@ function App() {
 
   const messagesLength = useMemo(() => messages.length, [messages]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   const requestOpenAi = useCallback(
     async (contents: ChatCompletionRequestMessage[]) => {
+      setIsLoading(true);
+
       const data = await requestToOpenAi(contents);
 
       if (data !== null) {
@@ -37,6 +46,8 @@ function App() {
           { role: data.role, content: data.content },
         ]);
       }
+
+      setIsLoading(false);
     },
     [messages.toString()]
   );
@@ -82,6 +93,8 @@ function App() {
       setMessages((preV) => [...preV, { role: "user", content: transcript }]);
 
       requestOpenAi(reqContents);
+
+      resetTranscript();
     }
   }, [listening]);
 
@@ -110,26 +123,64 @@ function App() {
     }
   }, [audioArrayBuffer]);
 
+  const { scrollDownToTargetElement } = useScroll();
+  useEffect(() => {
+    scrollDownToTargetElement(CHAT_AREA_ID);
+  }, [messages.toString()]);
+
   return (
     <>
-      <div>
-        <p>Microphone: {listening ? "on" : "off"}</p>
-        <button
-          type="button"
-          onClick={() => SpeechRecognition.startListening()}
-        >
-          Start
-        </button>
-        <button type="button" onClick={() => SpeechRecognition.stopListening()}>
-          Stop
-        </button>
-        <button type="button" onClick={() => resetTranscript()}>
-          Reset
-        </button>
+      <div className="flex flex-col gap-2 content-center scroll-smooth">
+        {messages.length > 0 && (
+          <div
+            id={CHAT_AREA_ID}
+            className="grid grid-rows-none content-start gap-4 w-[700px] max-h-[500px] overflow-y-auto px-5 py-3"
+          >
+            {messages.map((message, idx) => (
+              <div
+                className={`w-fit ${
+                  message.role === "user"
+                    ? "justify-self-end"
+                    : "justify-self-start"
+                }`}
+              >
+                <Chat key={idx} role={message.role} content={message.content} />
+              </div>
+            ))}
+          </div>
+        )}
 
-        {messages.map((message, idx) => (
-          <Chat key={idx} role={message.role} content={message.content} />
-        ))}
+        <div className="text-center my-5">
+          {listening ? (
+            <Mic className="animate-bounce w-14 h-14 fill-green-500 inline-block" />
+          ) : (
+            <MicOff className="w-14 h-14 fill-red-500 inline-block" />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => SpeechRecognition.startListening()}
+            disabled={listening || isLoading}
+            className="custom-btn text-center disabled:cursor-not-allowed"
+          >
+            {!listening && !isLoading ? (
+              <span>入力</span>
+            ) : (
+              <div className="flex justify-center">
+                <div className="animate-spin h-5 w-5 border-4 border-white rounded-full border-t-transparent"></div>
+              </div>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => SpeechRecognition.stopListening()}
+            className="custom-btn"
+          >
+            Stop
+          </button>
+        </div>
       </div>
     </>
   );
