@@ -32,11 +32,13 @@ function App() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [enableVoicevox, setEnableVoicevox] = useState(false);
+  const [isVoicevoxOn, setIsVoicevoxOn] = useState(true);
 
   useEffect(() => {
     const f = async () => {
       setEnableVoicevox(await healthCheck());
     };
+
     f();
   }, []);
 
@@ -109,11 +111,16 @@ function App() {
   }, [listening]);
 
   const requestGenerateVoicevox = useCallback(async (text: string) => {
-    setAudioArrayBuffer(await generateVoice(text));
+    const arrayBuffer = await generateVoice(text);
+    if (arrayBuffer !== null) {
+      setAudioArrayBuffer(arrayBuffer);
+    } else {
+      setEnableVoicevox(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (enableVoicevox) {
+    if (enableVoicevox && isVoicevoxOn) {
       if (messages.length > 0) {
         const latestMessage = messages[messages.length - 1];
         if (latestMessage.role === "assistant") {
@@ -174,36 +181,47 @@ function App() {
         </div>
 
         <div className="flex flex-col items-center  gap-2 my-8">
-          <div className="text-md">
-            Voice:{" "}
-            {enableVoicevox ? (
-              <span className=" text-green-500">ON</span>
-            ) : (
-              <span className=" text-red-500">OFF</span>
-            )}
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <p className="text-md">Turn Voice ON/OFF</p>
-
-            <button
-              type="button"
-              className="custom-icon-btn"
-              onClick={() => setEnableVoicevox((preV) => !preV)}
-            >
-              <div className="flex flex-col items-center">
-                {enableVoicevox ? (
-                  <>
-                    <VolumeOff className="w-8 h-8" />
-                  </>
+          {enableVoicevox ? (
+            <>
+              <div className="text-md">
+                Voice:{" "}
+                {isVoicevoxOn ? (
+                  <span className=" text-green-500">ON</span>
                 ) : (
-                  <>
-                    <VolumeUp className="w-8 h-8" />
-                  </>
+                  <span className=" text-red-500">OFF</span>
                 )}
               </div>
-            </button>
-          </div>
+
+              <div className="flex gap-2 items-center">
+                <p className="text-md">Turn Voice ON/OFF</p>
+
+                <button
+                  type="button"
+                  className="custom-icon-btn"
+                  onClick={() => setIsVoicevoxOn((preV) => !preV)}
+                >
+                  <div className="flex flex-col items-center">
+                    {isVoicevoxOn ? (
+                      <>
+                        <VolumeOff className="w-8 h-8" />
+                      </>
+                    ) : (
+                      <>
+                        <VolumeUp className="w-8 h-8" />
+                      </>
+                    )}
+                  </div>
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-md">
+              <div>Voicevoxサーバーが動いていません...</div>
+              <div>
+                Voicevoxサーバーを動かして、このアプリをリロードしてください...
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
