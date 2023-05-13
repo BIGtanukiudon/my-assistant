@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const voicevoxClient = axios.create({
-  baseURL: "http://localhost:50021/",
+  baseURL: import.meta.env.VITE_VOICEVOX_API_ENDPOINT,
   proxy: false,
 });
 
