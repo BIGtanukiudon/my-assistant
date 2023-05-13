@@ -9,10 +9,12 @@ import {
   ChatCompletionRequestMessageRoleEnum,
 } from "openai";
 import { requestToOpenAi } from "./openAi";
-import { generateVoice } from "./voicevox";
+import { healthCheck, generateVoice } from "./voicevox";
 import { Howl } from "howler";
 import { ReactComponent as Mic } from "./assets/mic.svg";
 import { ReactComponent as MicOff } from "./assets/mic_off.svg";
+import { ReactComponent as VolumeUp } from "./assets/volume_up.svg";
+import { ReactComponent as VolumeOff } from "./assets/volume_off.svg";
 import { useScroll } from "./hooks/scroll";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -28,10 +30,17 @@ function App() {
   const [audioArrayBuffer, setAudioArrayBuffer] = useState<ArrayBuffer | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [enableVoicevox, setEnableVoicevox] = useState(false);
+
+  useEffect(() => {
+    const f = async () => {
+      setEnableVoicevox(await healthCheck());
+    };
+    f();
+  }, []);
 
   const messagesLength = useMemo(() => messages.length, [messages]);
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -99,15 +108,17 @@ function App() {
     }
   }, [listening]);
 
-  useEffect(() => {
-    const reqVoicevox = async (text: string) => {
-      setAudioArrayBuffer(await generateVoice(text));
-    };
+  const requestGenerateVoicevox = useCallback(async (text: string) => {
+    setAudioArrayBuffer(await generateVoice(text));
+  }, []);
 
-    if (messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      if (latestMessage.role === "assistant") {
-        reqVoicevox(latestMessage.content);
+  useEffect(() => {
+    if (enableVoicevox) {
+      if (messages.length > 0) {
+        const latestMessage = messages[messages.length - 1];
+        if (latestMessage.role === "assistant") {
+          requestGenerateVoicevox(latestMessage.content);
+        }
       }
     }
   }, [messages.toString()]);
@@ -154,12 +165,45 @@ function App() {
           </div>
         )}
 
-        <div className="text-center my-5">
+        <div className="text-center mt-5">
           {listening ? (
             <Mic className="animate-bounce w-14 h-14 fill-green-500 inline-block" />
           ) : (
             <MicOff className="w-14 h-14 fill-red-500 inline-block" />
           )}
+        </div>
+
+        <div className="flex flex-col items-center  gap-2 my-8">
+          <div className="text-md">
+            Voice:{" "}
+            {enableVoicevox ? (
+              <span className=" text-green-500">ON</span>
+            ) : (
+              <span className=" text-red-500">OFF</span>
+            )}
+          </div>
+
+          <div className="flex gap-2 items-center">
+            <p className="text-md">Turn Voice ON/OFF</p>
+
+            <button
+              type="button"
+              className="custom-icon-btn"
+              onClick={() => setEnableVoicevox((preV) => !preV)}
+            >
+              <div className="flex flex-col items-center">
+                {enableVoicevox ? (
+                  <>
+                    <VolumeOff className="w-8 h-8" />
+                  </>
+                ) : (
+                  <>
+                    <VolumeUp className="w-8 h-8" />
+                  </>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

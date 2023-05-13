@@ -43,3 +43,7 @@ h1 {
 .custom-btn {
   @apply w-28 text-indigo-300 border border-indigo-300 hover:bg-indigo-300 hover:text-white active:bg-indigo-300 font-bold px-8 py-3 rounded outline-none focus:outline-none ease-linear transition-all duration-150 mx-auto;
 }
+
+.custom-icon-btn {
+  @apply text-indigo-300 border border-indigo-300 hover:bg-indigo-300 hover:text-white active:bg-indigo-300 font-bold rounded-full px-2 py-2 outline-none focus:outline-none ease-linear transition-all duration-150 mx-auto;
+}

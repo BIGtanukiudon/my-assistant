@@ -5,6 +5,13 @@ const voicevoxClient = axios.create({
   proxy: false,
 });
 
+export const healthCheck = async (): Promise<boolean> => {
+  return await voicevoxClient
+    .get("version")
+    .then((res) => res.status === 200)
+    .catch(() => false);
+};
+
 export const generateVoice = async (
   text: string
 ): Promise<ArrayBuffer | null> => {
