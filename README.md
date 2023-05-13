@@ -59,6 +59,15 @@ docker-compose up -d
 By default, GPU usage is enabled.  
 To use the CPU, define the appropriate configuration in `docker-compose.yml`.
 
+## Keyboard Shortcuts
+
+You can use the following keyboard shortcuts:
+
+| Function        | Shortcut  |
+| --------------- | --------- |
+| Start Recording | Shift + R |
+| Stop Recording  | Shift + S |
+
 ## License & Disclaimer
 
 This application is subject to the license of VOICEVOX ENGINE. Please refer to the [here](https://github.com/VOICEVOX/voicevox_engine) for the license terms of VOICEVOX ENGINE.  

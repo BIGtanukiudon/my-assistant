@@ -14,6 +14,7 @@ import { Howl } from "howler";
 import { ReactComponent as Mic } from "./assets/mic.svg";
 import { ReactComponent as MicOff } from "./assets/mic_off.svg";
 import { useScroll } from "./hooks/scroll";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type MessageProps = {
   role: string;
@@ -128,6 +129,9 @@ function App() {
     scrollDownToTargetElement(CHAT_AREA_ID);
   }, [messages.toString()]);
 
+  useHotkeys("shift+r", () => SpeechRecognition.startListening());
+  useHotkeys("shift+s", () => SpeechRecognition.stopListening());
+
   return (
     <>
       <div className="flex flex-col gap-2 content-center scroll-smooth">
@@ -180,6 +184,27 @@ function App() {
           >
             Stop
           </button>
+        </div>
+
+        <div className="text-md mt-10 mx-auto">
+          <table className="table-auto">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2">動作</th>
+                <th className="border px-4 py-2">ショートカットキー</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border px-4 py-2">入力</td>
+                <td className="border px-4 py-2">Shift + R</td>
+              </tr>
+              <tr>
+                <td className="border px-4 py-2">Stop</td>
+                <td className="border px-4 py-2">Shift + S</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </>
