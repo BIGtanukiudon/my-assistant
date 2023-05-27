@@ -4,3 +4,24 @@
   padding: 2rem;
   text-align: center;
 }
+
+pre {
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.inline-code {
+  background-color: #71717a;
+  font-weight: 300;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 3px;
+}
+
+.inline-code::before {
+  padding-left: 0.25rem;
+}
+
+.inline-code::after {
+  padding-right: 0.25rem;
+}

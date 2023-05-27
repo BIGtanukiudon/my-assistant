@@ -1,4 +1,7 @@
 import { useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type Props = {
   role: string;
@@ -35,9 +38,35 @@ const Chat: React.FC<Props> = ({ role, content }) => {
 
   return (
     <div
-      className={`px-4 py-2 w-[500px] text-gray-700 rounded-lg text-left text-xl ${nonRound} ${bgColor} ${animateScaleUp}`}
+      className={`px-4 py-2 w-[500px] text-gray-700 rounded-lg text-left text-base ${nonRound} ${bgColor} ${animateScaleUp}`}
     >
-      <p className="whitespace-pre-wrap">{content}</p>
+      <ReactMarkdown
+        children={content}
+        components={{
+          code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || "");
+
+            return !inline ? (
+              <SyntaxHighlighter
+                {...props}
+                children={String(children).replace(/\n$/, "")}
+                style={vscDarkPlus}
+                language={
+                  match !== null && match.length >= 1 ? match[1] : undefined
+                }
+                PreTag="div"
+                wrapLongLines={true}
+                codeTagProps={{ className: "text-base" }}
+              />
+            ) : (
+              <code {...props} className="inline-code">
+                {children}
+              </code>
+            );
+          },
+        }}
+        className="whitespace-pre-wrap"
+      />
     </div>
   );
 };
