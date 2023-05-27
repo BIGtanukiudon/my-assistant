@@ -156,7 +156,7 @@ function App() {
         {messages.length > 0 && (
           <div
             id={CHAT_AREA_ID}
-            className="grid grid-rows-none content-start gap-4 w-[700px] max-h-[500px] overflow-y-auto px-5 py-3"
+            className="grid grid-rows-none content-start gap-4 w-[700px] max-h-[700px] overflow-y-auto px-5 py-3"
           >
             {messages.map((message, idx) => (
               <div

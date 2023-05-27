@@ -64,6 +64,12 @@ const Chat: React.FC<Props> = ({ role, content }) => {
               </code>
             );
           },
+          ul({ children }) {
+            return <ul className="list-disc px-5 my-0">{children}</ul>;
+          },
+          ol({ children }) {
+            return <ol className="list-decimal px-5 my-0">{children}</ol>;
+          },
         }}
         className="whitespace-pre-wrap"
       />
